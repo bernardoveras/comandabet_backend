@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipResult {
+  GAIN
+  HALF_GAIN
+  LOSE
+  HALF_LOST
+  CANCELED
+  REFUND
+}
+
+model Tenant {
+  id         String   @id @default(uuid())
+  name       String
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  users      User[]
+  tips       Tip[]
+
+  @@map("tenant")
+}
+
+// Usuário
+model User {
+  id             String     @id @default(uuid())
+  tenant_id      String?
+  tenant         Tenant?    @relation(fields: [tenant_id], references: [id])
+  email          String     @unique
+  password       String
+  name           String
+  picture_url    String?
+  signature_date DateTime?
+  expires_in     DateTime?
+  active         Boolean    @default(true)
+  bets           UserBets[]
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@map("user")
+}
+
+// Apostas do usuário
+model UserBets {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  tip        Tip      @relation(fields: [tip_id], references: [id])
+  tip_id     String
+  canceled   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("user_bets")
+}
+
+// Palpites
+model Tip {
+  id            String     @id @default(uuid())
+  tenant_id     String
+  tenant        Tenant     @relation(fields: [tenant_id], references: [id])
+  suggested_odd Decimal?
+  details       String?
+  match         String
+  market_id     String
+  market        Market     @relation(fields: [market_id], references: [id])
+  time          String?
+  url           String
+  image_url     String?
+  result        TipResult
+  betting_users UserBets[]
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  @@map("tip")
+}
+
+// Mercados
+model Market {
+  id         String   @id @default(uuid())
+  name       String
+  tips       Tip[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("market")
+}
