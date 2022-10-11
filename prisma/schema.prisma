@@ -17,6 +17,7 @@ enum TipResult {
   HALF_LOST
   CANCELED
   REFUND
+  IN_PROGRESS
 }
 
 model Tenant {
@@ -77,7 +78,7 @@ model Tip {
   time          String?
   url           String
   image_url     String?
-  result        TipResult
+  result        TipResult  @default(value: IN_PROGRESS)
   betting_users UserBets[]
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt

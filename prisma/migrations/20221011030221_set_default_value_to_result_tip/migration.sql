@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "tip" ALTER COLUMN "result" SET DEFAULT 'IN_PROGRESS';
